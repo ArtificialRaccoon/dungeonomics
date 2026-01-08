@@ -8,6 +8,8 @@ SECRET_KEY = config.settings['secret_key']
 DEBUG = config.settings['debug']
 ALLOWED_HOSTS = config.settings['allowed_hosts']
 
+WIKI_ADMINS = os.environ.get('WIKI_ADMINS', 'admin@example.com').split(',')
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -35,13 +37,17 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 ROOT_URLCONF = 'dungeonomics.urls'
 
@@ -72,6 +78,9 @@ DATABASES = {
         'PASSWORD': config.settings['db_password'],
         'HOST': config.settings['db_host'],
         'PORT': config.settings['db_port'],
+        'OPTIONS': {
+            'options': '-c timezone=UTC',
+        },        
     }
 }
 
@@ -94,8 +103,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-
 
 LANGUAGE_CODE = 'en-us'
 

@@ -5,7 +5,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.urls import reverse
 from django.db import models
 from django.db.models import Avg
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from characters.models import Monster, NPC, Player
 from tavern.models import Review
