@@ -1,3 +1,15 @@
+# Notice
+
+This repo is an attempt to bring Dungeonomics into 2026, while also containerizing it for easy distribution.  There are currently many issues, and shouldn't be used for anything serious.
+
+Currently broken:
+
+- Wiki
+- Delete account
+- Account creation email (you'll need to look in the container log to get the account activation link)
+- Account deletion
+- etc...
+
 ## Dungeonomics
 
 A web-based organizational tool for Dungeon Masters that play RPG games like Dungeons & Dragons. Dungeonomics allows DMs to create campaigns and link monsters and NPCs to their campaigns for easy access and readability.
