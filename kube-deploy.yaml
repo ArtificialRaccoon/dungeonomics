@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dungeonomics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dungeonomics
+  template:
+    metadata:
+      labels:
+        app: dungeonomics
+    spec:
+      containers:
+        - name: web
+          image: dungeonomics:dev
+          ports:
+            - containerPort: 8000
+          command:
+            - sh
+            - -c
+            - |
+              python manage.py migrate --noinput
+              python manage.py collectstatic --noinput
+              gunicorn dungeonomics.wsgi:application --bind=0.0.0.0:8000 --workers=3
+          envFrom:
+            - configMapRef:
+                name: dungeonomics-config
+            - secretRef:
+                name: dungeonomics-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dungeonomics
+spec:
+  type: ClusterIP
+  selector:
+    app: dungeonomics
+  ports:
+    - port: 8000
+      targetPort: 8000
