@@ -23,25 +23,37 @@ django:
   adminPath: admin
   allowedHosts: "localhost,127.0.0.1"
 
-database:
-  name: dungeonomics
-  host: dungeonomics-postgresql
-  port: 5432
-  user: dungeonomics
-  password: dungeonomics
-
 secret:
   djangoSecretKey: change-me-in-prod
 
+useExternalPostgres: true
 postgresql:
-  enabled: true
+  enabled: false
 
-  auth:
-    database: dungeonomics
-    username: dungeonomics
-    password: dungeonomics
+database:
+  host: generic-postgres-postgresql.default.svc.cluster.local
+  port: 5432
+  name: dungeonomics
+  user: postgres
+  password: postgres
 
-  primary:
-    persistence:
-      enabled: true
-      size: 5Gi
+# useExternalPostgres: false
+# postgresql:
+#   enabled: true
+# 
+#   auth:
+#     database: dungeonomics
+#     username: dungeonomics
+#     password: dungeonomics
+# 
+#   primary:
+#     persistence:
+#       enabled: true
+#       size: 5Gi
+#
+# database:
+#  name: dungeonomics
+#  host: dungeonomics-postgresql
+#  port: 5432
+#  user: postgres
+#  password: postgres
