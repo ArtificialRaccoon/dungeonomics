@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dungeonomics.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "dungeonomics.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "dungeonomics.name" . }}
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z {{ .Values.database.host }} {{ .Values.database.port }}; do
+                sleep 2
+              done
+      containers:
+        - name: web
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8000
+          command:
+            - sh
+            - -c
+            - |
+              python manage.py migrate --noinput
+              python manage.py collectstatic --noinput
+              gunicorn dungeonomics.wsgi:application --bind=0.0.0.0:8000 --workers=3
+          envFrom:
+            - configMapRef:
+                name: {{ include "dungeonomics.fullname" . }}-config
+            - secretRef:
+                name: {{ include "dungeonomics.fullname" . }}-secrets

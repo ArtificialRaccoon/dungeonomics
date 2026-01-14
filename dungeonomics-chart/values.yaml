@@ -1,0 +1,47 @@
+replicaCount: 1
+
+image:
+  repository: dungeonomics
+  tag: dev
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: ""
+      paths:
+        - path: /
+          pathType: Prefix
+
+django:
+  debug: false
+  adminPath: admin
+  allowedHosts: "localhost,127.0.0.1"
+
+database:
+  name: dungeonomics
+  host: dungeonomics-postgresql
+  port: 5432
+  user: dungeonomics
+  password: dungeonomics
+
+secret:
+  djangoSecretKey: change-me-in-prod
+
+postgresql:
+  enabled: true
+
+  auth:
+    database: dungeonomics
+    username: dungeonomics
+    password: dungeonomics
+
+  primary:
+    persistence:
+      enabled: true
+      size: 5Gi

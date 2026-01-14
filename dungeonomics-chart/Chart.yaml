@@ -1,0 +1,11 @@
+apiVersion: v2
+name: dungeonomics
+description: A Helm chart for Dungeonomics
+type: application
+version: 0.1.0
+appVersion: "dev"
+
+dependencies:
+  - name: postgresql
+    version: 18.2.0
+    repository: https://charts.bitnami.com/bitnami

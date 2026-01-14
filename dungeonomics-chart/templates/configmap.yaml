@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "dungeonomics.fullname" . }}-config
+data:
+  DB_NAME: {{ .Values.database.name }}
+  DB_HOST: {{ .Values.database.host }}
+  DB_PORT: "{{ .Values.database.port }}"
+  DJANGO_DEBUG: "{{ .Values.django.debug }}"
+  ALLOWED_HOSTS: "{{ .Values.django.allowedHosts }}"
+  DJANGO_ADMIN_PATH: "{{ .Values.django.adminPath }}"
