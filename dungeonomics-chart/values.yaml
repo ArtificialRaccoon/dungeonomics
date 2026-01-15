@@ -26,6 +26,11 @@ django:
 secret:
   djangoSecretKey: change-me-in-prod
 
+admin:
+  username: admin
+  email: admin@example.com
+  password: changeme
+
 useExternalPostgres: true
 postgresql:
   enabled: false

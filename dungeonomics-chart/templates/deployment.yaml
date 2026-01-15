@@ -36,6 +36,22 @@ spec:
                 psql -h {{ .Values.database.host }} -p {{ .Values.database.port }} -U {{ .Values.database.user }} -d postgres -c "CREATE DATABASE {{ .Values.database.name }};"
               fi
               {{- end }}
+        - name: django-init
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "dungeonomics.fullname" . }}-config
+            - secretRef:
+                name: {{ include "dungeonomics.fullname" . }}-secrets
+            - secretRef:
+                name: {{ include "dungeonomics.fullname" . }}-admin
+          command:
+            - sh
+            - -c
+            - |
+              python manage.py migrate --noinput
+              python manage.py createsuperuser --noinput || true
       containers:
         - name: web
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -46,7 +62,6 @@ spec:
             - sh
             - -c
             - |
-              python manage.py migrate --noinput
               python manage.py collectstatic --noinput
               gunicorn dungeonomics.wsgi:application --bind=0.0.0.0:8000 --workers=3
           envFrom:
