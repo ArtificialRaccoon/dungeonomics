@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:14
+    image: postgres:18
     environment:
       POSTGRES_DB: dungeonomics
       POSTGRES_USER: dungeonomics
@@ -8,7 +8,7 @@ services:
       TZ: UTC
     command: ["postgres", "-c", "timezone=UTC"]      
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     ports:
       - "5432:5432"
     healthcheck:
