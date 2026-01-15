@@ -1,31 +1,123 @@
 # Notice
 
-This repo is an attempt to bring Dungeonomics into 2026, while also containerizing it for easy distribution.  There are currently many issues, and shouldn't be used for anything serious.
+This repo is an attempt to bring Dungeonomics into 2026, while also containerizing it for easy distribution.  There are currently many issues, and shouldn't be used for anything serious yet.
 
-Currently broken:
+## Installation
 
-- Wiki
-- Delete account
-- Account creation email (you'll need to look in the container log to get the account activation link)
-- Account deletion
-- etc...
+I've drafted a few simple methods for getting Dungeonomics up and running; a docker compose, a kubernetes deployment, and a Helm chart.  The Helm chart is the currently expected installation method.  
 
-## Dungeonomics
+### Build the Docker Image
 
-A web-based organizational tool for Dungeon Masters that play RPG games like Dungeons & Dragons. Dungeonomics allows DMs to create campaigns and link monsters and NPCs to their campaigns for easy access and readability.
+For now, we are just going to use the dev tag since Dungeonomics is in the process of being heavily updated.
 
-## Motivation
+```
+docker build -t dungeonomics:dev .
+```
 
-Dungeonomics was created in an attempt to get rid of piles of papers that DMs have to manage when creating and maintaining a D&D campaign. We want to remove the process of focusing on a campaign, flipping to a monster stat-line to control a combat, flipping back to the campaign, interacting with players and constantly referencing or searching for different papers... It's all gone with Dungeonomics. Everything is on one computer screen, with quick access to assets like monsters and NPCs without losing focus on the main campaign.
+### Fetching the Postgres subchart
 
-## Contributing
+You'll need to tell helm to download and lock the current version of PostgreSQL (current v18).
 
-Dungeonomics is a community tool made by DMs for DMs. Dungeonomics is a free tool to be used by the D&D/RPG community. In an effort to promote the use and growing functionality of Dungeonomics, the Dungeonomics code is open to contributors. Anyone is free to pull the Dungeonomics code and make their own code changes and submit them for approval. We want the community to not only provide us with feedback, but also have a direct influence on the site.
+```
+helm dependency update ./dungeonomics-chart
+```
 
-Dungeonomics is built with [Django](https://www.djangoproject.com/).
+### Switch from the external PostgreSQL to the Helm installed dependancy
 
-We welcome contributions. If you have any questions or want to talk to us about contributing, email us at dungeonomics@gmail.com.
+In values.yaml, change:
 
-## License
+```
+useExternalPostgres: true
+postgresql:
+  enabled: false
 
-You can use this under GNU General Public License v3.0. See the LICENSE file for full details.
+database:
+  host: generic-postgres-postgresql.default.svc.cluster.local
+  port: 5432
+  name: dungeonomics
+  user: postgres
+  password: postgres
+
+# useExternalPostgres: false
+# postgresql:
+#   enabled: true
+# 
+#   auth:
+#     database: dungeonomics
+#     username: dungeonomics
+#     password: dungeonomics
+# 
+#   primary:
+#     persistence:
+#       enabled: true
+#       size: 5Gi
+#
+# database:
+#  name: dungeonomics
+#  host: dungeonomics-postgresql
+#  port: 5432
+#  user: postgres
+#  password: postgres
+```
+
+to
+
+```
+# useExternalPostgres: true
+# postgresql:
+#   enabled: false
+
+# database:
+#   host: generic-postgres-postgresql.default.svc.cluster.local
+#   port: 5432
+#   name: dungeonomics
+#   user: postgres
+#   password: postgres
+
+useExternalPostgres: false
+postgresql:
+  enabled: true
+
+  auth:
+    database: dungeonomics
+    username: dungeonomics
+    password: dungeonomics
+
+  primary:
+    persistence:
+      enabled: true
+      size: 5Gi
+
+database:
+ name: dungeonomics
+ host: dungeonomics-postgresql
+ port: 5432
+ user: postgres
+ password: postgres
+```
+
+### Configure your Administrator
+
+Within values.yaml, you'll find the administrator settings:
+
+```
+admin:
+  username: admin
+  email: admin@example.com
+  password: changeme
+```
+
+Change these to whatever you wish.  You can access the admin panel by navigating to http:\\your-dungeonomics-instance\admin
+
+
+### Install the chart
+
+I suggest using the dungeonomics namespace; it'll make it easier to clean up.
+
+```
+helm install dungeonomics ./dungeonomics-chart -n dungeonomics --create-namespace
+```
+
+### Notes about New Users
+
+New user creation works, but currently I've defaulted to just displaying the verification link in the console.  You'll need to view the logs of the dungenomics pod to get the link should you want to create a new user using the web form.  You can also just use the admin panel to bypass this entirely.
